@@ -1,20 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { authOptions } from "@/lib/authOptions";
 import { CreateProfileDto } from "@/lib/dtos";
 import { setCookie } from "@/lib/generateToken";
 import { prisma } from "@/lib/prisma";
 import { createProfileSchema } from "@/lib/validationShema";
 import { verifyToken, verifyTokenFroPage } from "@/lib/verifyToken";
 import bcrypt from "bcryptjs";
+import { getServerSession } from "next-auth";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-
-/**
- *
- * @method PUT
- * @route  ~/api/users/profile
- * @desc   Update UserName Profile
- * @access private (only user himself can update his account/profile)
- */
 
 // Type of expected request body
 type UpdateProfileDto = {
@@ -28,10 +23,38 @@ type UpdateProfileDto = {
   imageUrl?: string;
 };
 
+/**
+ *
+ * @method PUT
+ * @route  ~/api/users/profile
+ * @desc   Update UserName Profile
+ * @access private (only user himself can update his account/profile)
+ */
+
 export async function PUT(request: NextRequest) {
   try {
     const token = (await cookies()).get("jwtToken")?.value || "";
-    const payload = verifyTokenFroPage(token);
+    // const payload = verifyTokenFroPage(token);
+
+    // 🟢 Use `let` instead of `const`
+    let payload: any = verifyTokenFroPage(token);
+
+    // if (!payload?.id) {
+    //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    // }
+
+    // ✅ Fallback to NextAuth session
+    if (!payload?.id) {
+      const session = await getServerSession(authOptions);
+      if (session?.user?.email) {
+        const user = await prisma.user.findUnique({
+          where: { email: session.user.email },
+        });
+        if (user) {
+          payload = { id: user.id, email: user.email, isAdmin: user.isAdmin };
+        }
+      }
+    }
 
     if (!payload?.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -114,93 +137,274 @@ export async function PUT(request: NextRequest) {
  * @access
  */
 
+// export async function POST(request: NextRequest) {
+//   try {
+//     const token = (await cookies()).get("jwtToken")?.value || "";
+//     const payload = verifyTokenFroPage(token);
+
+//     if (!payload?.id) {
+//       return NextResponse.json(
+//         { message: "Unauthorized: Invalid token or missing user ID" },
+//         { status: 401 }
+//       );
+//     }
+
+//     const userFromToken = verifyToken(request);
+//     if (userFromToken && userFromToken.id !== payload.id) {
+//       return NextResponse.json(
+//         { message: "Access denied: Token mismatch" },
+//         { status: 403 }
+//       );
+//     }
+
+//     const body = (await request.json()) as CreateProfileDto;
+
+//     const validation = createProfileSchema.safeParse(body);
+//     if (!validation.success) {
+//       return NextResponse.json(
+//         { message: validation.error.errors[0].message },
+//         { status: 400 }
+//       );
+//     }
+
+//     // Check if profile exists using userId (now marked as unique in schema)
+//     const existingProfile = await prisma.profile.findUnique({
+//       where: { userId: payload.id },
+//     });
+
+//     let profile;
+
+//     if (existingProfile) {
+//       // ✅ Update existing profile
+//       profile = await prisma.profile.update({
+//         where: { userId: payload.id },
+//         data: {
+//           phoneNumber: body.phoneNumber,
+//           streetAddress: body.streetAddress,
+//           city: body.city,
+//           postalCode: body.postalCode,
+//           country: body.country,
+//           imageUrl: body.imageUrl,
+//         },
+//         select: {
+//           phoneNumber: true,
+//           streetAddress: true,
+//           city: true,
+//           postalCode: true,
+//           country: true,
+//           imageUrl: true,
+//         },
+//       });
+//     } else {
+//       // ✅ Create new profile
+//       profile = await prisma.profile.create({
+//         data: {
+//           userId: payload.id,
+//           phoneNumber: body.phoneNumber,
+//           streetAddress: body.streetAddress,
+//           city: body.city,
+//           postalCode: body.postalCode,
+//           country: body.country,
+//           imageUrl: body.imageUrl,
+//         },
+//         select: {
+//           phoneNumber: true,
+//           streetAddress: true,
+//           city: true,
+//           postalCode: true,
+//           country: true,
+//           imageUrl: true,
+//         },
+//       });
+//     }
+
+//     return NextResponse.json(profile, { status: 200 });
+//   } catch (error) {
+//     console.error(
+//       "Profile POST error:",
+//       error instanceof Error ? error.message : error
+//     );
+//     return NextResponse.json(
+//       { message: "Internal server error. Please try again." },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+// export async function POST(request: NextRequest) {
+//   try {
+//     const token = (await cookies()).get("jwtToken")?.value || "";
+
+//     // 🟢 Allow re-assignment
+//     let payload: any = verifyTokenFroPage(token);
+
+//     // ✅ Fallback: try NextAuth session if no JWT
+//     if (!payload?.id) {
+//       const session = await getServerSession(authOptions);
+//       if (session?.user?.email) {
+//         const user = await prisma.user.findUnique({
+//           where: { email: session.user.email },
+//         });
+//         if (user) {
+//           payload = { id: user.id, email: user.email };
+//         }
+//       }
+//     }
+
+//     if (!payload?.id) {
+//       return NextResponse.json(
+//         { message: "Unauthorized: Invalid token or missing user ID" },
+//         { status: 401 }
+//       );
+//     }
+
+//     // 🧾 Validate body
+//     const body = (await request.json()) as CreateProfileDto;
+//     const validation = createProfileSchema.safeParse(body);
+//     if (!validation.success) {
+//       return NextResponse.json(
+//         { message: validation.error.errors[0].message },
+//         { status: 400 }
+//       );
+//     }
+
+//     // 🧠 Upsert user profile
+//     const profile = await prisma.profile.upsert({
+//       where: { userId: payload.id },
+//       update: {
+//         phoneNumber: body.phoneNumber,
+//         streetAddress: body.streetAddress,
+//         city: body.city,
+//         postalCode: body.postalCode,
+//         country: body.country,
+//         imageUrl: body.imageUrl,
+//       },
+//       create: {
+//         userId: payload.id,
+//         phoneNumber: body.phoneNumber,
+//         streetAddress: body.streetAddress,
+//         city: body.city,
+//         postalCode: body.postalCode,
+//         country: body.country,
+//         imageUrl: body.imageUrl,
+//       },
+//       select: {
+//         phoneNumber: true,
+//         streetAddress: true,
+//         city: true,
+//         postalCode: true,
+//         country: true,
+//         imageUrl: true,
+//       },
+//     });
+
+//     return NextResponse.json(profile, { status: 200 });
+//   } catch (error) {
+//     console.error("Profile POST error:", error);
+//     return NextResponse.json(
+//       { message: "Internal server error. Please try again." },
+//       { status: 500 }
+//     );
+//   }
+// }
+
 export async function POST(request: NextRequest) {
   try {
+    // 🍪 Get JWT token from cookies
     const token = (await cookies()).get("jwtToken")?.value || "";
-    const payload = verifyTokenFroPage(token);
+    console.log("🔹 Token from cookies:", token);
 
+    // 🔑 Verify token
+    let payload: any = verifyTokenFroPage(token);
+    console.log("🔹 Decoded payload:", payload);
+
+    // ✅ Try session fallback if JWT not valid
     if (!payload?.id) {
+      console.log("⚠️ No payload.id found, trying NextAuth session...");
+      const session = await getServerSession(authOptions);
+      console.log("🔹 NextAuth session:", session);
+
+      if (session?.user?.email) {
+        const user = await prisma.user.findUnique({
+          where: { email: session.user.email },
+        });
+        console.log("🔹 Found user via session:", user);
+
+        if (user) payload = { id: user.id, email: user.email };
+      }
+    }
+
+    // ❌ Still no user ID?
+    if (!payload?.id) {
+      console.log("🚫 No valid user ID found, unauthorized request.");
       return NextResponse.json(
         { message: "Unauthorized: Invalid token or missing user ID" },
         { status: 401 }
       );
     }
 
-    const userFromToken = verifyToken(request);
-    if (userFromToken && userFromToken.id !== payload.id) {
-      return NextResponse.json(
-        { message: "Access denied: Token mismatch" },
-        { status: 403 }
-      );
-    }
-
+    // 🧾 Parse and validate request body
     const body = (await request.json()) as CreateProfileDto;
+    console.log("🔹 Request body:", body);
 
     const validation = createProfileSchema.safeParse(body);
     if (!validation.success) {
+      console.log("🚫 Validation failed:", validation.error.errors);
       return NextResponse.json(
         { message: validation.error.errors[0].message },
         { status: 400 }
       );
     }
 
-    // Check if profile exists using userId (now marked as unique in schema)
-    const existingProfile = await prisma.profile.findUnique({
-      where: { userId: payload.id },
+    // 🔍 Check if user exists before upsert
+    const existingUser = await prisma.user.findUnique({
+      where: { id: payload.id },
     });
+    console.log("🔹 Existing user check:", existingUser);
 
-    let profile;
-
-    if (existingProfile) {
-      // ✅ Update existing profile
-      profile = await prisma.profile.update({
-        where: { userId: payload.id },
-        data: {
-          phoneNumber: body.phoneNumber,
-          streetAddress: body.streetAddress,
-          city: body.city,
-          postalCode: body.postalCode,
-          country: body.country,
-          imageUrl: body.imageUrl,
-        },
-        select: {
-          phoneNumber: true,
-          streetAddress: true,
-          city: true,
-          postalCode: true,
-          country: true,
-          imageUrl: true,
-        },
-      });
-    } else {
-      // ✅ Create new profile
-      profile = await prisma.profile.create({
-        data: {
-          userId: payload.id,
-          phoneNumber: body.phoneNumber,
-          streetAddress: body.streetAddress,
-          city: body.city,
-          postalCode: body.postalCode,
-          country: body.country,
-          imageUrl: body.imageUrl,
-        },
-        select: {
-          phoneNumber: true,
-          streetAddress: true,
-          city: true,
-          postalCode: true,
-          country: true,
-          imageUrl: true,
-        },
-      });
+    if (!existingUser) {
+      console.log("🚫 User not found in database for ID:", payload.id);
+      return NextResponse.json(
+        { message: "User not found. Cannot create profile." },
+        { status: 404 }
+      );
     }
 
+    // 🧠 Upsert profile
+    console.log("🧠 Creating or updating profile for user:", payload.id);
+    const profile = await prisma.profile.upsert({
+      where: { userId: payload.id },
+      update: {
+        phoneNumber: body.phoneNumber,
+        streetAddress: body.streetAddress,
+        city: body.city,
+        postalCode: body.postalCode,
+        country: body.country,
+        imageUrl: body.imageUrl,
+      },
+      create: {
+        userId: payload.id,
+        phoneNumber: body.phoneNumber,
+        streetAddress: body.streetAddress,
+        city: body.city,
+        postalCode: body.postalCode,
+        country: body.country,
+        imageUrl: body.imageUrl,
+      },
+      select: {
+        phoneNumber: true,
+        streetAddress: true,
+        city: true,
+        postalCode: true,
+        country: true,
+        imageUrl: true,
+      },
+    });
+
+    console.log("✅ Profile upserted successfully:", profile);
     return NextResponse.json(profile, { status: 200 });
-  } catch (error) {
-    console.error(
-      "Profile POST error:",
-      error instanceof Error ? error.message : error
-    );
+  } catch (error: any) {
+    console.error("🔥 Profile POST error:", error);
     return NextResponse.json(
       { message: "Internal server error. Please try again." },
       { status: 500 }

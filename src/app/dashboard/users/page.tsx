@@ -40,47 +40,6 @@ export default async function UsersPage() {
     const inactiveUsers = userss.filter(u => u.status === "Inactive").length;
     const adminUsers = userss.filter(u => u.role === "Admin").length;
 
-
-
-    // const users = [
-    //     {
-    //         id: "1",
-    //         name: "John Doe",
-    //         email: "john.doe@example.com",
-    //         role: "Admin",
-    //         status: "Active",
-    //         joinDate: "2024-01-15",
-    //         lastLogin: "2024-01-25 10:30 AM",
-    //     },
-    //     {
-    //         id: "2",
-    //         name: "Jane Smith",
-    //         email: "jane.smith@example.com",
-    //         role: "Manager",
-    //         status: "Active",
-    //         joinDate: "2024-01-10",
-    //         lastLogin: "2024-01-25 09:15 AM",
-    //     },
-    //     {
-    //         id: "3",
-    //         name: "Bob Johnson",
-    //         email: "bob.johnson@example.com",
-    //         role: "User",
-    //         status: "Inactive",
-    //         joinDate: "2024-01-20",
-    //         lastLogin: "2024-01-23 02:45 PM",
-    //     },
-    //     {
-    //         id: "4",
-    //         name: "Alice Brown",
-    //         email: "alice.brown@example.com",
-    //         role: "User",
-    //         status: "Active",
-    //         joinDate: "2024-01-18",
-    //         lastLogin: "2024-01-25 11:20 AM",
-    //     },
-    // ]
-
     const getRoleIcon = (role: string) => {
         switch (role) {
             case "Admin":

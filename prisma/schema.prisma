@@ -99,8 +99,8 @@ model Order {
   customerEmail   String
   status          String   @default("Pending") // Pending, Processing, Shipped, Delivered, Cancelled
   subtotal        Float
-  tax             Float
-  shipping        Float
+  tax             Float?
+  shipping        Float?
   total           Float
   shippingAddress String?
   paymentMethod   String   @default("Cash on Delivery")

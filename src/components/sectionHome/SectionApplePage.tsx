@@ -17,7 +17,6 @@ const SectionApplePage = () => {
     const [currentIndex, setCurrentIndex] = useState(0)
     const [fade, setFade] = useState(false)
 
-
     useEffect(() => {
         async function fetchProduction() {
             try {

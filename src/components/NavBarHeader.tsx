@@ -218,12 +218,6 @@ const NavBarHeader = ({ payload }: { payload: JWTPayload }) => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
-            {/* <button className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9 group border rounded-full">
-              <Moon className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 group-hover:rotate-180 group-hover:text-yellow-400" />
-
-              <Sun className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 group-hover:rotate-45 group-hover:text-slate-600" />
-            </button>  */}
           </div>
         </div>
 
@@ -288,13 +282,32 @@ const NavBarHeader = ({ payload }: { payload: JWTPayload }) => {
                 className="rounded-full hover:cursor-pointer"
               />
 
-              {openSignIn && (
+              {/* {openSignIn && (
                 <div className="fixed z-50 top-14 sm:right-2 right-0 p-2
                 dark:bg-[#020817] bg-white sm:w-[40%] border
                  dark:border-slate-800 border-gray-200">
                   <SingIn payload={payload} />
                 </div>
+              )} */}
+
+              {openSignIn && (
+                <div
+                  className="
+      fixed
+      top-16 right-4
+      z-50
+      w-[90%] sm:w-[60%] md:w-[40%] lg:w-[25%] xl:w-[20%]
+      p-3
+      bg-white dark:bg-[#020817]
+      border border-gray-200 dark:border-slate-800
+      rounded-xl shadow-lg
+      transition-all duration-200
+    "
+                >
+                  <SingIn payload={payload} />
+                </div>
               )}
+
             </div>
 
             <DropdownMenu>

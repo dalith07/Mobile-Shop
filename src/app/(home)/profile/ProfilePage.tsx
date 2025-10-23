@@ -18,7 +18,7 @@ import { toast } from 'sonner'; import {
     SelectLabel,
     SelectTrigger,
 } from "@/components/ui/select";
-import { Eye, EyeOff, Globe } from 'lucide-react';
+import { Eye, EyeOff, FileImage, Globe, Save } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { DOMAIN } from '@/lib/constants';
 import axios from "axios";
@@ -48,9 +48,9 @@ const ProfilePage = ({ payload }: { payload: JWTPayload }) => {
         onClientUploadComplete: async ([data]) => {
             const imageUrl = data.ufsUrl;
 
-            setImageUploadUrl(imageUrl || session?.user?.image || "/login_light_mode.jpeg");
+            setImageUploadUrl(imageUrl || session?.user.image || "/login_light_mode.jpeg");
 
-            setUploadProgress(0);
+            setUploadProgress(0); // <--- reset progress
             toast.success("Image uploaded successfully");
         },
 
@@ -108,6 +108,7 @@ const ProfilePage = ({ payload }: { payload: JWTPayload }) => {
                 postalCode: postalCode,
                 country: selectedCountry,
                 imageUrl: imageUploadUrl,
+                // imageUrl: imageUploadUrl,
             });
 
             toast.success("Create Profile");
@@ -134,12 +135,12 @@ const ProfilePage = ({ payload }: { payload: JWTPayload }) => {
     };
 
     return (
-        <section className='mt-8'>
+        <section className='mt-8 h-[90vh] '>
             <h1 className='text-center text-primary text-4xl font-semibold'>
                 Profile
             </h1>
 
-            <div className="max-w-lg sm:mx-auto mx-4 mt-4" >
+            <div className="max-w-lg sm:mx-auto mx-4 mt-4 flex items-center justify-center" >
                 <div className="flex flex-col items-center gap-4 md:flex-row md:items-start">
                     <div>
                         <div className='w-5/5 h-5/5'>
@@ -168,16 +169,11 @@ const ProfilePage = ({ payload }: { payload: JWTPayload }) => {
                                 <div className="" {...getRootProps()}>
                                     <input {...getInputProps()} />
 
-                                    <span className="block border text-sm border-gray-300 rounded-lg p-2 mt-2 text-center cursor-pointer font-semibold">
+                                    <span className="block border border-gray-300 rounded-lg p-2 mt-2 text-center cursor-pointer font-semibold">
                                         {uploadProgress > 0 ? (
-                                            <>
-                                                <Progress
-                                                    value={uploadProgress}
-                                                    className="my-2 w-full h-2 bg-gray-300"
-                                                />
-                                            </>
+                                            <Progress value={uploadProgress} className="my-2 w-full h-2 bg-gray-300" />
                                         ) : (
-                                            "Chess file"
+                                            <span className='flex flex-row items-center gap-2'> <FileImage className='text-primary' /> Chess file</span>
                                         )}
                                     </span>
                                 </div>
@@ -355,11 +351,13 @@ const ProfilePage = ({ payload }: { payload: JWTPayload }) => {
 
                             <Button
                                 type="submit"
-                                className="w-full text-white font-bold cursor-pointer"
+                                className="text-lg text-white font-bold cursor-pointer flex items-center justify-center gap-2"
                                 disabled={uploadProgress > 0}
                             >
+                                <Save />
                                 Save
                             </Button>
+
                         </div>
 
                     </form>

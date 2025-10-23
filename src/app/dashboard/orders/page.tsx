@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { useEffect, useState } from "react"
@@ -15,16 +16,6 @@ import { toast } from "sonner"
 import { OrderDetailDialog } from "@/components/order_detail_dialog"
 import { OrderItem } from "@prisma/client"
 
-// interface Order {
-//     id: string
-//     orderNumber: string
-//     customerName: string
-//     customerEmail: string
-//     status: string
-//     total: number
-//     items: any[]
-//     createdAt: string
-// }
 
 interface Order {
     id: string
@@ -43,7 +34,7 @@ interface Order {
 
 export default function OrdersPage() {
     const [orders, setOrders] = useState<Order[]>([])
-    const [selectedOrder, setSelectedOrder] = useState<Order>()
+    const [selectedOrder, setSelectedOrder] = useState<Order | any>()
     const [dialogOpen, setDialogOpen] = useState(false)
     const [loading, setLoading] = useState(true)
     const [stats, setStats] = useState({

@@ -19,7 +19,7 @@ export interface UpdateUserDto {
 export interface CreateProfileDto {
   username?: string;
   email: string;
-  imageUrl?: string;
+  imageUrl?: string; // <- optional
   phoneNumber?: string;
   streetAddress?: string;
   city?: string;

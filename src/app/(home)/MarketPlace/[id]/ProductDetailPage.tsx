@@ -58,6 +58,7 @@ export default function ProductDetailPage({ product }: ProductPageProps) {
             category: product.category.name,
             model: product.model.name,
             maxQuantity: product.quantity,
+            description: product.description
         })
 
         toast.success(`Added ${quantity} ${product.title} to cart!`)

@@ -15,7 +15,6 @@ import axios from "axios"
 import { useEffect, useState } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ProductsWithAll } from "@/lib/utils"
-import { ScrollArea } from "@/components/ui/scroll-area"
 export default function ProductionPage() {
     const [production, setProduction] = useState<ProductsWithAll[]>([])
     const [statusFilter, setStatusFilter] = useState<string>("all")
@@ -201,7 +200,26 @@ export default function ProductionPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                <ScrollArea className="max-h-[400px] w-full rounded-md border">
+                                {filteredItems.map((item) => (
+                                    <TableRow key={item.id}>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2">
+                                                {getStatusIcon(item.status)}
+                                                {item.name}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>{getStatusBadge(item.status)}</TableCell>
+                                        <TableCell>{item.quantity}</TableCell>
+                                        <TableCell>{formatDate(item.startDate.toString())}</TableCell>
+                                        <TableCell>{item.expectedCompletion}</TableCell>
+                                        <TableCell>
+                                            <Link href={`/dashboard/products/${item.id}`}>
+                                                <Button variant="outline" size="sm">Edit</Button>
+                                            </Link>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                                {/* <ScrollArea className="max-h-[400px] w-full rounded-md border">
                                     {filteredItems.map((item) => (
                                         <TableRow key={item.id}>
                                             <TableCell>
@@ -221,8 +239,7 @@ export default function ProductionPage() {
                                             </TableCell>
                                         </TableRow>
                                     ))}
-                                </ScrollArea>
-
+                                </ScrollArea> */}
                             </TableBody>
                         </Table>
                     </CardContent>

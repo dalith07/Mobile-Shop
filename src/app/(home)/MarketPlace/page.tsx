@@ -252,6 +252,7 @@ export default function MarketplacePage() {
                   category: product.category,
                   model: product.model,
                   maxQuantity: product.quantity,
+                  description: product.description
                 })
               }}
             >
@@ -325,6 +326,7 @@ export default function MarketplacePage() {
                       category: product.category,
                       model: product.model,
                       maxQuantity: product.quantity,
+                      description: product.description
                     })
                   }}>
                   <ShoppingCart className="h-4 w-4 mr-1" />

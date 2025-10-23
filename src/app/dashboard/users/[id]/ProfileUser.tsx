@@ -55,9 +55,7 @@ const ProfileUser = ({ users, payload }: Props) => {
     const [selectedRols, setSelectedRols] = useState<string>("");
     const [selectedStatus, setSelectedStatus] = useState<string>("");
 
-    console.log("payload UserName: ", payload.username
-
-    )
+    console.log("payload UserName: ", payload.username)
     console.log("User UserName: ", users.username)
     // console.log("Profile data:", users.profile?.[0]);
 
@@ -274,7 +272,7 @@ const ProfileUser = ({ users, payload }: Props) => {
                             </div>
 
                             {/* ROLS & STATUS */}
-                            {payload.email === "admin@gmail.com" && payload.isAdmin === true && (
+                            {payload.email === "mobileShop@admin.com" || payload.isAdmin === true ? (
 
                                 <div className="flex space-x-4">
                                     {/* ROLS */}
@@ -316,7 +314,7 @@ const ProfileUser = ({ users, payload }: Props) => {
                                         </Select>
                                     </div>
                                 </div>
-                            )}
+                            ) : <span>you are not admin</span>}
 
                             {/* COUNTRY */}
                             <div>
